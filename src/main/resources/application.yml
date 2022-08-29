@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/reservation-system-db
+    username: bishoy
+    password: 12345
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
