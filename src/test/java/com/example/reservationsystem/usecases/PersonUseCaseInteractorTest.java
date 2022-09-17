@@ -31,9 +31,11 @@ class PersonUseCaseInteractorTest {
         personRequestModel = buildPersonRequestModel();
     }
 
-    @Test
-    void savePerson_presentBadRequest_caseNullNationalId() {
-        personRequestModel.setNationalId(null);
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {""})
+    void savePerson_presentBadRequest_caseInvalidNationalId(String nationalId) {
+        personRequestModel.setNationalId(nationalId);
 
         personInputBoundary.savePerson(personRequestModel);
 
@@ -41,20 +43,11 @@ class PersonUseCaseInteractorTest {
         verify(personDataAccess, times(0)).savePerson(any(Person.class));
     }
 
-    @Test
-    void savePerson_presentBadRequest_caseBlankNationalId() {
-        personRequestModel.setNationalId("");
-
-        personInputBoundary.savePerson(personRequestModel);
-
-        verify(personOutputBoundary, times(1)).presentBadRequest(PersonErrorMessages.NATIONAL_ID_IS_REQUIRED);
-        verify(personDataAccess, times(0)).savePerson(any(Person.class));
-    }
-
-
-    @Test
-    void savePerson_presentBadRequest_caseNullName() {
-        personRequestModel.setName(null);
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {""})
+    void savePerson_presentBadRequest_caseInvalidName(String name) {
+        personRequestModel.setName(name);
 
         personInputBoundary.savePerson(personRequestModel);
 
@@ -62,47 +55,21 @@ class PersonUseCaseInteractorTest {
         verify(personDataAccess, times(0)).savePerson(any(Person.class));
     }
 
-    @Test
-    void savePerson_presentBadRequest_caseBlankName() {
-        personRequestModel.setName("");
 
-        personInputBoundary.savePerson(personRequestModel);
-
-        verify(personOutputBoundary, times(1)).presentBadRequest(PersonErrorMessages.NAME_IS_REQUIRED);
-        verify(personDataAccess, times(0)).savePerson(any(Person.class));
-    }
-
-    @Test
-    void savePerson_presentBadRequest_caseInvalidAge() {
-        personRequestModel.setAge(-1);
+    @ParameterizedTest
+    @ValueSource(ints = {-1, 0, 14})
+    void savePerson_presentBadRequest_caseInvalidAge(Integer age) {
+        personRequestModel.setAge(age);
         personInputBoundary.savePerson(personRequestModel);
         verify(personOutputBoundary, times(1)).presentBadRequest(PersonErrorMessages.INVALID_AGE);
         verify(personDataAccess, times(0)).savePerson(any(Person.class));
-
-        personRequestModel.setAge(0);
-        personInputBoundary.savePerson(personRequestModel);
-        verify(personOutputBoundary, times(2)).presentBadRequest(PersonErrorMessages.INVALID_AGE);
-        verify(personDataAccess, times(0)).savePerson(any(Person.class));
-
-        personRequestModel.setAge(14);
-        personInputBoundary.savePerson(personRequestModel);
-        verify(personOutputBoundary, times(3)).presentBadRequest(PersonErrorMessages.INVALID_AGE);
-        verify(personDataAccess, times(0)).savePerson(any(Person.class));
     }
 
-    @Test
-    void savePerson_presentBadRequest_caseNullEmailAddress() {
-        personRequestModel.setEmailAddress(null);
-
-        personInputBoundary.savePerson(personRequestModel);
-
-        verify(personOutputBoundary, times(1)).presentBadRequest(PersonErrorMessages.EMAIL_ADDRESS_IS_REQUIRED);
-        verify(personDataAccess, times(0)).savePerson(any(Person.class));
-    }
-
-    @Test
-    void savePerson_presentBadRequest_caseBlankEmailAddress() {
-        personRequestModel.setEmailAddress("");
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {""})
+    void savePerson_presentBadRequest_caseInvalidEmailAddress(String emailAddress) {
+        personRequestModel.setEmailAddress(emailAddress);
 
         personInputBoundary.savePerson(personRequestModel);
 
@@ -123,7 +90,7 @@ class PersonUseCaseInteractorTest {
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {""})
-    void savePerson_presentBadRequest_caseNullMobileNumber(String mobileNumber) {
+    void savePerson_presentBadRequest_caseInvalidMobileNumber(String mobileNumber) {
         personRequestModel.setMobileNumber(mobileNumber);
 
         personInputBoundary.savePerson(personRequestModel);

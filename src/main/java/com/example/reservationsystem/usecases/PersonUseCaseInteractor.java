@@ -17,6 +17,11 @@ public class PersonUseCaseInteractor implements PersonInputBoundary {
 
     @Override
     public Object savePerson(PersonRequestModel personRequestModel) {
+        validatePersonRequestFields(personRequestModel);
+        return null;
+    }
+
+    private void validatePersonRequestFields(PersonRequestModel personRequestModel) {
         if (StringUtils.isBlank(personRequestModel.getNationalId()))
             personOutputBoundary.presentBadRequest(PersonErrorMessages.NATIONAL_ID_IS_REQUIRED);
         if (StringUtils.isBlank(personRequestModel.getName()))
@@ -29,6 +34,5 @@ public class PersonUseCaseInteractor implements PersonInputBoundary {
             personOutputBoundary.presentBadRequest(PersonErrorMessages.INVALID_EMAIL_ADDRESS);
         if (StringUtils.isBlank(personRequestModel.getMobileNumber()))
             personOutputBoundary.presentBadRequest(PersonErrorMessages.INVALID_MOBILE_NUMBER);
-        return null;
     }
 }
