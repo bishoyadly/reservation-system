@@ -4,10 +4,12 @@ import com.example.reservationsystem.entities.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -118,15 +120,16 @@ class PersonUseCaseInteractorTest {
         verify(personDataAccess, times(0)).savePerson(any(Person.class));
     }
 
-    //    @Test
-    void savePerson_presentBadRequest_whenPersonExists() {
-        when(personDataAccess.personExistsByNationalId(anyString())).thenReturn(true);
-        PersonRequestModel personRequestModel = new PersonRequestModel();
-        PersonResponseModel personResponseModel = (PersonResponseModel) personInputBoundary.savePerson(personRequestModel);
-        verify(personOutputBoundary, times(1)).presentBadRequest(anyString());
-        verify(personDataAccess, times(1)).personExistsByNationalId(personRequestModel.getNationalId());
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {""})
+    void savePerson_presentBadRequest_caseNullMobileNumber(String mobileNumber) {
+        personRequestModel.setMobileNumber(mobileNumber);
+
+        personInputBoundary.savePerson(personRequestModel);
+
+        verify(personOutputBoundary, times(1)).presentBadRequest(PersonErrorMessages.INVALID_MOBILE_NUMBER);
         verify(personDataAccess, times(0)).savePerson(any(Person.class));
-        assertNull(personResponseModel);
     }
 
     private PersonRequestModel buildPersonRequestModel() {

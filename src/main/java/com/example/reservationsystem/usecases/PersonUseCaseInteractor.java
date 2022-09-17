@@ -27,7 +27,8 @@ public class PersonUseCaseInteractor implements PersonInputBoundary {
             personOutputBoundary.presentBadRequest(PersonErrorMessages.EMAIL_ADDRESS_IS_REQUIRED);
         if (!EmailValidator.getInstance().isValid(personRequestModel.getEmailAddress()))
             personOutputBoundary.presentBadRequest(PersonErrorMessages.INVALID_EMAIL_ADDRESS);
-
+        if (StringUtils.isBlank(personRequestModel.getMobileNumber()))
+            personOutputBoundary.presentBadRequest(PersonErrorMessages.INVALID_MOBILE_NUMBER);
         return null;
     }
 }
