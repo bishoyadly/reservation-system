@@ -1,24 +1,29 @@
 package com.example.reservationsystem.usecases;
 
+import com.example.reservationsystem.entities.Person;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class PersonUseCaseInteractor implements PersonInputBoundary {
 
-    private PersonOutputBoundary personOutputBoundary;
-    private PersonDataAccess personDataAccess;
+    private final PersonOutputBoundary personOutputBoundary;
+    private final PersonDataAccess personDataAccess;
+    private final PersonMapper personMapper;
 
     @Autowired
-    public PersonUseCaseInteractor(PersonOutputBoundary personOutputBoundary, PersonDataAccess personDataAccess) {
+    public PersonUseCaseInteractor(PersonOutputBoundary personOutputBoundary, PersonDataAccess personDataAccess, PersonMapper personMapper) {
         this.personOutputBoundary = personOutputBoundary;
         this.personDataAccess = personDataAccess;
+        this.personMapper = personMapper;
     }
 
     @Override
     public Object savePerson(PersonRequestModel personRequestModel) {
         validatePersonRequestFields(personRequestModel);
-        return null;
+        Person person = personMapper.personRequestToPerson(personRequestModel);
+        personDataAccess.savePerson(person);
+        return personOutputBoundary.presentSuccessResponse();
     }
 
     private void validatePersonRequestFields(PersonRequestModel personRequestModel) {
