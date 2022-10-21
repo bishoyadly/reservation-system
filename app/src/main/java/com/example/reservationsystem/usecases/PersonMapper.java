@@ -6,4 +6,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface PersonMapper {
     Person personRequestToPerson(PersonRequestModel requestModel);
+
+    PersonResponseModel personToResponseModel(Person person);
 }

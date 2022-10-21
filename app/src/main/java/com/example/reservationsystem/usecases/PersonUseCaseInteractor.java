@@ -23,21 +23,27 @@ public class PersonUseCaseInteractor implements PersonInputBoundary {
         validatePersonRequestFields(personRequestModel);
         Person person = personMapper.personRequestToPerson(personRequestModel);
         personDataAccess.savePerson(person);
-        return personOutputBoundary.presentSuccessResponse();
+        PersonResponseModel responseModel = personMapper.personToResponseModel(person);
+        return personOutputBoundary.presentSuccessResponse(responseModel);
     }
 
     private void validatePersonRequestFields(PersonRequestModel personRequestModel) {
         if (StringUtils.isBlank(personRequestModel.getNationalId()))
-            personOutputBoundary.presentBadRequest(PersonErrorMessages.NATIONAL_ID_IS_REQUIRED);
+            presentBadRequestError(PersonErrorMessages.NATIONAL_ID_IS_REQUIRED);
         if (StringUtils.isBlank(personRequestModel.getName()))
-            personOutputBoundary.presentBadRequest(PersonErrorMessages.NAME_IS_REQUIRED);
+            presentBadRequestError(PersonErrorMessages.NAME_IS_REQUIRED);
         if (personRequestModel.getAge() < 15)
-            personOutputBoundary.presentBadRequest(PersonErrorMessages.INVALID_AGE);
+            presentBadRequestError(PersonErrorMessages.INVALID_AGE);
         if (StringUtils.isBlank(personRequestModel.getEmailAddress()))
-            personOutputBoundary.presentBadRequest(PersonErrorMessages.EMAIL_ADDRESS_IS_REQUIRED);
+            presentBadRequestError(PersonErrorMessages.EMAIL_ADDRESS_IS_REQUIRED);
         if (!EmailValidator.getInstance().isValid(personRequestModel.getEmailAddress()))
-            personOutputBoundary.presentBadRequest(PersonErrorMessages.INVALID_EMAIL_ADDRESS);
+            presentBadRequestError(PersonErrorMessages.INVALID_EMAIL_ADDRESS);
         if (StringUtils.isBlank(personRequestModel.getMobileNumber()))
-            personOutputBoundary.presentBadRequest(PersonErrorMessages.INVALID_MOBILE_NUMBER);
+            presentBadRequestError(PersonErrorMessages.INVALID_MOBILE_NUMBER);
     }
+
+    private void presentBadRequestError(String errorMessage) {
+        personOutputBoundary.presentBadRequest(errorMessage);
+    }
+
 }

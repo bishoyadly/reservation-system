@@ -28,9 +28,11 @@ class PersonUseCaseInteractorTest {
 
     private PersonRequestModel personRequestModel;
 
+    private PersonMapper personMapper;
+
     @BeforeEach
     void setUp() {
-        PersonMapper personMapper = new PersonMapperImpl();
+        personMapper = new PersonMapperImpl();
         personInputBoundary = new PersonUseCaseInteractor(personOutputBoundary, personDataAccess, personMapper);
         personRequestModel = buildPersonRequestModel();
     }
@@ -114,19 +116,40 @@ class PersonUseCaseInteractorTest {
     @Test
     void savePerson_caseValidRequest() {
         personInputBoundary.savePerson(personRequestModel);
+        assertPassedPerson();
+        assertPassedPersonResponseModel();
+        verify(personDataAccess, times(1)).savePerson(any(Person.class));
+    }
+
+    private void assertPassedPerson() {
+        verify(personDataAccess, times(1)).savePerson(any(Person.class));
         ArgumentCaptor<Person> argumentCaptor = ArgumentCaptor.forClass(Person.class);
         verify(personDataAccess).savePerson(argumentCaptor.capture());
         assertPersonRequestMappedFields(personRequestModel, argumentCaptor.getValue());
-        verify(personDataAccess, times(1)).savePerson(any(Person.class));
-        verify(personOutputBoundary, times(1)).presentSuccessResponse();
     }
 
     private void assertPersonRequestMappedFields(PersonRequestModel requestModel, Person person) {
-        assertEquals(personRequestModel.getNationalId(), person.getNationalId());
-        assertEquals(personRequestModel.getName(), person.getName());
-        assertEquals(personRequestModel.getAge(), person.getAge());
-        assertEquals(personRequestModel.getMobileNumber(), person.getMobileNumber());
-        assertEquals(personRequestModel.getEmailAddress(), person.getEmailAddress());
+        assertEquals(person.getNationalId(), requestModel.getNationalId());
+        assertEquals(requestModel.getName(), person.getName());
+        assertEquals(requestModel.getAge(), person.getAge());
+        assertEquals(requestModel.getMobileNumber(), person.getMobileNumber());
+        assertEquals(requestModel.getEmailAddress(), person.getEmailAddress());
+    }
+
+    private void assertPassedPersonResponseModel() {
+        verify(personOutputBoundary, times(1)).presentSuccessResponse(any(PersonResponseModel.class));
+        ArgumentCaptor<PersonResponseModel> argumentCaptor = ArgumentCaptor.forClass(PersonResponseModel.class);
+        verify(personOutputBoundary).presentSuccessResponse(argumentCaptor.capture());
+        Person person = personMapper.personRequestToPerson(personRequestModel);
+        assertPersonResponseMappedFields(person, argumentCaptor.getValue());
+    }
+
+    private void assertPersonResponseMappedFields(Person person, PersonResponseModel responseModel) {
+        assertEquals(person.getNationalId(), responseModel.getNationalId());
+        assertEquals(person.getName(), responseModel.getName());
+        assertEquals(person.getAge(), responseModel.getAge());
+        assertEquals(person.getMobileNumber(), responseModel.getMobileNumber());
+        assertEquals(person.getEmailAddress(), responseModel.getEmailAddress());
     }
 
     private PersonRequestModel buildPersonRequestModel() {

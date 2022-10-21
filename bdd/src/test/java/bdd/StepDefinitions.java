@@ -1,21 +1,27 @@
 package bdd;
 
-import io.cucumber.java.en.*;
-
-import org.junit.jupiter.api.Assertions.*;
+import com.example.reservationsystem.usecases.PersonInputBoundary;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 public class StepDefinitions {
 
-    @Given("an example scenario")
-    public void anExampleScenario() {
+    @Given("user who does not exist in the system")
+    public void userWhoDoesNotExistInTheSystem() {
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Object> responseEntity = restTemplate.postForEntity("http://localhost:8080", new Object(), Object.class);
     }
 
-    @When("all step definitions are implemented")
-    public void allStepDefinitionsAreImplemented() {
+    @When("user signs up to the system")
+    public void userSignsUpToTheSystem() {
+
     }
 
-    @Then("the scenario passes")
-    public void theScenarioPasses() {
-    }
+    @Then("user created in the system")
+    public void userCreatedInTheSystem() {
 
+    }
 }
