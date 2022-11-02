@@ -1,5 +1,6 @@
 package com.example.reservationsystem.usecases;
 
+import com.example.reservationsystem.PersonModelsBuilder;
 import com.example.reservationsystem.entities.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,15 +27,46 @@ class PersonUseCaseInteractorTest {
 
     private PersonInputBoundary personInputBoundary;
 
-    private PersonRequestModel personRequestModel;
+    private PersonRequest personRequest;
 
     private PersonMapper personMapper;
+
+    private void assertPassedPerson() {
+        verify(personDataAccess, times(1)).savePerson(any(Person.class));
+        ArgumentCaptor<Person> argumentCaptor = ArgumentCaptor.forClass(Person.class);
+        verify(personDataAccess).savePerson(argumentCaptor.capture());
+        assertPersonRequestMappedFields(personRequest, argumentCaptor.getValue());
+    }
+
+    private void assertPersonRequestMappedFields(PersonRequest requestModel, Person person) {
+        assertEquals(person.getNationalId(), requestModel.getNationalId());
+        assertEquals(requestModel.getName(), person.getName());
+        assertEquals(requestModel.getAge(), person.getAge());
+        assertEquals(requestModel.getMobileNumber(), person.getMobileNumber());
+        assertEquals(requestModel.getEmailAddress(), person.getEmailAddress());
+    }
+
+    private void assertPassedPersonResponse() {
+        verify(personOutputBoundary, times(1)).presentSuccessResponse(any(PersonResponse.class));
+        ArgumentCaptor<PersonResponse> argumentCaptor = ArgumentCaptor.forClass(PersonResponse.class);
+        verify(personOutputBoundary).presentSuccessResponse(argumentCaptor.capture());
+        Person person = personMapper.personRequestToPerson(personRequest);
+        assertPersonResponseMappedFields(person, argumentCaptor.getValue());
+    }
+
+    private void assertPersonResponseMappedFields(Person person, PersonResponse responseModel) {
+        assertEquals(person.getNationalId(), responseModel.getNationalId());
+        assertEquals(person.getName(), responseModel.getName());
+        assertEquals(person.getAge(), responseModel.getAge());
+        assertEquals(person.getMobileNumber(), responseModel.getMobileNumber());
+        assertEquals(person.getEmailAddress(), responseModel.getEmailAddress());
+    }
 
     @BeforeEach
     void setUp() {
         personMapper = new PersonMapperImpl();
         personInputBoundary = new PersonUseCaseInteractor(personOutputBoundary, personDataAccess, personMapper);
-        personRequestModel = buildPersonRequestModel();
+        personRequest = PersonModelsBuilder.buildPersonRequest();
     }
 
     @ParameterizedTest
@@ -42,9 +74,9 @@ class PersonUseCaseInteractorTest {
     @ValueSource(strings = {""})
     void savePerson_presentBadRequest_caseInvalidNationalId(String nationalId) {
         when(personOutputBoundary.presentBadRequest(anyString())).thenThrow(PersonApiException.class);
-        personRequestModel.setNationalId(nationalId);
+        personRequest.setNationalId(nationalId);
 
-        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequestModel));
+        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequest));
 
         verify(personOutputBoundary, times(1)).presentBadRequest(PersonErrorMessages.NATIONAL_ID_IS_REQUIRED);
         verify(personDataAccess, times(0)).savePerson(any(Person.class));
@@ -55,9 +87,9 @@ class PersonUseCaseInteractorTest {
     @ValueSource(strings = {""})
     void savePerson_presentBadRequest_caseInvalidName(String name) {
         when(personOutputBoundary.presentBadRequest(anyString())).thenThrow(PersonApiException.class);
-        personRequestModel.setName(name);
+        personRequest.setName(name);
 
-        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequestModel));
+        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequest));
 
         verify(personOutputBoundary, times(1)).presentBadRequest(PersonErrorMessages.NAME_IS_REQUIRED);
         verify(personDataAccess, times(0)).savePerson(any(Person.class));
@@ -68,9 +100,9 @@ class PersonUseCaseInteractorTest {
     @ValueSource(ints = {-1, 0, 14})
     void savePerson_presentBadRequest_caseInvalidAge(Integer age) {
         when(personOutputBoundary.presentBadRequest(anyString())).thenThrow(PersonApiException.class);
-        personRequestModel.setAge(age);
+        personRequest.setAge(age);
 
-        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequestModel));
+        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequest));
 
         verify(personOutputBoundary, times(1)).presentBadRequest(PersonErrorMessages.INVALID_AGE);
         verify(personDataAccess, times(0)).savePerson(any(Person.class));
@@ -81,9 +113,9 @@ class PersonUseCaseInteractorTest {
     @ValueSource(strings = {""})
     void savePerson_presentBadRequest_caseEmailAddressNotProvided(String emailAddress) {
         when(personOutputBoundary.presentBadRequest(anyString())).thenThrow(PersonApiException.class);
-        personRequestModel.setEmailAddress(emailAddress);
+        personRequest.setEmailAddress(emailAddress);
 
-        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequestModel));
+        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequest));
 
         verify(personOutputBoundary, times(1)).presentBadRequest(PersonErrorMessages.EMAIL_ADDRESS_IS_REQUIRED);
         verify(personDataAccess, times(0)).savePerson(any(Person.class));
@@ -92,9 +124,9 @@ class PersonUseCaseInteractorTest {
     @Test
     void savePerson_presentBadRequest_caseInvalidEmailAddress() {
         when(personOutputBoundary.presentBadRequest(anyString())).thenThrow(PersonApiException.class);
-        personRequestModel.setEmailAddress("invalid_email_address");
+        personRequest.setEmailAddress("invalid_email_address");
 
-        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequestModel));
+        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequest));
 
         verify(personOutputBoundary, times(1)).presentBadRequest(PersonErrorMessages.INVALID_EMAIL_ADDRESS);
         verify(personDataAccess, times(0)).savePerson(any(Person.class));
@@ -105,61 +137,20 @@ class PersonUseCaseInteractorTest {
     @ValueSource(strings = {""})
     void savePerson_presentBadRequest_caseInvalidMobileNumber(String mobileNumber) {
         when(personOutputBoundary.presentBadRequest(anyString())).thenThrow(PersonApiException.class);
-        personRequestModel.setMobileNumber(mobileNumber);
+        personRequest.setMobileNumber(mobileNumber);
 
-        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequestModel));
+        assertThrows(PersonApiException.class, () -> personInputBoundary.savePerson(personRequest));
 
         verify(personOutputBoundary, times(1)).presentBadRequest(PersonErrorMessages.INVALID_MOBILE_NUMBER);
         verify(personDataAccess, times(0)).savePerson(any(Person.class));
     }
 
     @Test
-    void savePerson_caseValidRequest() {
-        personInputBoundary.savePerson(personRequestModel);
+    void savePerson_presentSuccessResponse() {
+        personInputBoundary.savePerson(personRequest);
         assertPassedPerson();
-        assertPassedPersonResponseModel();
+        assertPassedPersonResponse();
         verify(personDataAccess, times(1)).savePerson(any(Person.class));
-    }
-
-    private void assertPassedPerson() {
-        verify(personDataAccess, times(1)).savePerson(any(Person.class));
-        ArgumentCaptor<Person> argumentCaptor = ArgumentCaptor.forClass(Person.class);
-        verify(personDataAccess).savePerson(argumentCaptor.capture());
-        assertPersonRequestMappedFields(personRequestModel, argumentCaptor.getValue());
-    }
-
-    private void assertPersonRequestMappedFields(PersonRequestModel requestModel, Person person) {
-        assertEquals(person.getNationalId(), requestModel.getNationalId());
-        assertEquals(requestModel.getName(), person.getName());
-        assertEquals(requestModel.getAge(), person.getAge());
-        assertEquals(requestModel.getMobileNumber(), person.getMobileNumber());
-        assertEquals(requestModel.getEmailAddress(), person.getEmailAddress());
-    }
-
-    private void assertPassedPersonResponseModel() {
-        verify(personOutputBoundary, times(1)).presentSuccessResponse(any(PersonResponseModel.class));
-        ArgumentCaptor<PersonResponseModel> argumentCaptor = ArgumentCaptor.forClass(PersonResponseModel.class);
-        verify(personOutputBoundary).presentSuccessResponse(argumentCaptor.capture());
-        Person person = personMapper.personRequestToPerson(personRequestModel);
-        assertPersonResponseMappedFields(person, argumentCaptor.getValue());
-    }
-
-    private void assertPersonResponseMappedFields(Person person, PersonResponseModel responseModel) {
-        assertEquals(person.getNationalId(), responseModel.getNationalId());
-        assertEquals(person.getName(), responseModel.getName());
-        assertEquals(person.getAge(), responseModel.getAge());
-        assertEquals(person.getMobileNumber(), responseModel.getMobileNumber());
-        assertEquals(person.getEmailAddress(), responseModel.getEmailAddress());
-    }
-
-    private PersonRequestModel buildPersonRequestModel() {
-        PersonRequestModel personRequestModel = new PersonRequestModel();
-        personRequestModel.setNationalId("nationalId");
-        personRequestModel.setName("name");
-        personRequestModel.setAge(15);
-        personRequestModel.setEmailAddress("test_email_address@mail.com");
-        personRequestModel.setMobileNumber("12345");
-        return personRequestModel;
     }
 
 }

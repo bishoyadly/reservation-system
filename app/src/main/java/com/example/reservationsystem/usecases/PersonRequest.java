@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PersonResponseModel {
+public class PersonRequest {
     private String nationalId;
     private String name;
     private Integer age;
