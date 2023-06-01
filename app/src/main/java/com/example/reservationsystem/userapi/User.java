@@ -1,13 +1,14 @@
-package com.example.reservationsystem.usecases;
+package com.example.reservationsystem.userapi;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class PersonRequest {
+public class User {
     private String nationalId;
-    private String name;
+    private String firstName;
+    private String lastName;
     private Integer age;
     private String emailAddress;
     private String mobileNumber;

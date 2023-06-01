@@ -1,4 +1,4 @@
-package com.example.reservationsystem.adapters;
+package com.example.reservationsystem.userapi;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,11 +8,12 @@ import javax.persistence.Id;
 
 @Getter
 @Setter
-@Entity(name = "person")
-public class PersonRecord {
+@Entity(name = "system_user")
+public class UserEntity {
     @Id
     private String nationalId;
-    private String name;
+    private String firstName;
+    private String lastName;
     private Integer age;
     private String emailAddress;
     private String mobileNumber;
